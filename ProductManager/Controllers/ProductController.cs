@@ -19,15 +19,30 @@ namespace ProductManager.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetProducts(int pageIndex, int pageSize)
+        public async Task<IActionResult> GetPaginatedProducts(int pageIndex, int pageSize)
         {
             try
             {
-                List<ProductDto> products = await _productService.GetProducts(pageIndex, pageSize);
+                List<ProductDto> products = await _productService.GetPaginatedProducts(pageIndex, pageSize);
 
                 int totalPages = await _productService.GetTotalPagesCount(pageIndex, pageSize);
                 
                 return Ok(new PaginatedList<ProductDto>(products, pageIndex, totalPages));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);                
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllProducts()
+        {
+            try
+            {
+                List<ProductDto> products = await _productService.GetAllProducts();
+
+                return Ok(products);
             }
             catch (Exception ex)
             {

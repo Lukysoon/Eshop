@@ -13,9 +13,15 @@ public class ProductService : IProductService
         _productRepository = productRepository;    
     }
 
-    public async Task<List<ProductDto>> GetProducts(int pageIndex, int pageSize)
+    public async Task<List<ProductDto>> GetPaginatedProducts(int pageIndex, int pageSize)
     {
         // List<Product> products = await _productRepository.GetProducts(pageIndex, pageSize);
+        throw new NotImplementedException();
+    }
+
+    public async Task<List<ProductDto>> GetAllProducts()
+    {
+        // List<Product> products = await _productRepository.GetAllProducts();
         throw new NotImplementedException();
     }
 
