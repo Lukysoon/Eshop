@@ -49,5 +49,20 @@ namespace ProductManager.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex);                
             }
         }
+
+        [HttpPost]
+        public async Task<IActionResult> GetProduct(Guid id)
+        {
+            try
+            {
+                ProductDto product = await _productService.GetProduct(id);
+
+                return Ok(product);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);                
+            }
+        }
     }
 }

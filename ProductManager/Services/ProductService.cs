@@ -32,4 +32,11 @@ public class ProductService : IProductService
 
         return totalPages;
     }
+
+    public Task<ProductDto> GetProduct(Guid id)
+    {
+        // Product product = _productRepository.GetProduct(id);
+        throw new NotImplementedException();
+    }
+    
 }
