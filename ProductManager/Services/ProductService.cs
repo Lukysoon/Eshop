@@ -1,0 +1,29 @@
+using System;
+using ProductManager.Entities;
+using ProductManager.Models.Dto;
+using ProductManager.Repositories;
+
+namespace ProductManager.Services;
+
+public class ProductService : IProductService
+{
+    readonly IProductRepository _productRepository;
+    public ProductService(IProductRepository productRepository)
+    {
+        _productRepository = productRepository;    
+    }
+
+    public async Task<List<ProductDto>> GetProducts(int pageIndex, int pageSize)
+    {
+        // List<Product> products = await _productRepository.GetProducts(pageIndex, pageSize);
+        throw new NotImplementedException();
+    }
+
+    public async Task<int> GetTotalPagesCount(int pageIndex, int pageSize)
+    {
+        var count = await _productRepository.GetTotalCount(pageIndex, pageSize);
+        var totalPages = (int)Math.Ceiling(count / (double)pageSize);
+
+        return totalPages;
+    }
+}
