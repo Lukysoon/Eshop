@@ -64,5 +64,20 @@ namespace ProductManager.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex);                
             }
         }
+
+        [HttpPatch]
+        public async Task<IActionResult> UpdateProductDescription(Guid id, string description)
+        {
+            try
+            {
+                _productService.UpdateDescription(id, description);
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);                
+            }
+        }
     }
 }

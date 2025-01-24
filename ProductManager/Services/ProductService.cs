@@ -38,5 +38,9 @@ public class ProductService : IProductService
         // Product product = _productRepository.GetProduct(id);
         throw new NotImplementedException();
     }
-    
+
+    public void UpdateDescription(Guid id, string description)
+    {
+        _productRepository.UpdateDescription(id, description);
+    }
 }
