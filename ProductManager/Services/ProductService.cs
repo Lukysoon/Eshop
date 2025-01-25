@@ -1,5 +1,7 @@
 using System;
+using AutoMapper;
 using ProductManager.Entities;
+using ProductManager.Exceptions;
 using ProductManager.Models.Dto;
 using ProductManager.Repositories;
 
@@ -7,22 +9,28 @@ namespace ProductManager.Services;
 
 public class ProductService : IProductService
 {
-    readonly IProductRepository _productRepository;
-    public ProductService(IProductRepository productRepository)
+    private readonly IProductRepository _productRepository;
+    private readonly Mapper _mapper;
+    public ProductService(IProductRepository productRepository, Mapper mapper)
     {
         _productRepository = productRepository;    
+        _mapper = mapper;
     }
 
     public async Task<List<ProductDto>> GetPaginatedProducts(int pageIndex, int pageSize)
     {
-        // List<Product> products = await _productRepository.GetProducts(pageIndex, pageSize);
-        throw new NotImplementedException();
+        List<Product> products = await _productRepository.GetPaginatedProducts(pageIndex, pageSize);
+        List<ProductDto> dtoProducts = _mapper.Map<List<ProductDto>>(products);
+
+        return dtoProducts;
     }
 
     public async Task<List<ProductDto>> GetAllProducts()
     {
-        // List<Product> products = await _productRepository.GetAllProducts();
-        throw new NotImplementedException();
+        List<Product> products = await _productRepository.GetAllProducts();
+        List<ProductDto> dtoProducts = _mapper.Map<List<ProductDto>>(products);
+
+        return dtoProducts;
     }
 
     public async Task<int> GetTotalPagesCount(int pageIndex, int pageSize)
@@ -33,10 +41,13 @@ public class ProductService : IProductService
         return totalPages;
     }
 
-    public Task<ProductDto> GetProduct(Guid id)
+    public async Task<ProductDto> GetProduct(Guid id)
     {
-        // Product product = _productRepository.GetProduct(id);
-        throw new NotImplementedException();
+        Product? product = await _productRepository.GetProduct(id);
+        
+        ProductDto dtoProduct = _mapper.Map<ProductDto>(product);
+
+        return dtoProduct;
     }
 
     public void UpdateDescription(Guid id, string description)
