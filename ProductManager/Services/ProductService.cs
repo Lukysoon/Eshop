@@ -11,8 +11,8 @@ namespace ProductManager.Services;
 public class ProductService : IProductService
 {
     private readonly IProductRepository _productRepository;
-    private readonly Mapper _mapper;
-    public ProductService(IProductRepository productRepository, Mapper mapper)
+    private readonly IMapper _mapper;
+    public ProductService(IProductRepository productRepository, IMapper mapper)
     {
         _productRepository = productRepository;    
         _mapper = mapper;
