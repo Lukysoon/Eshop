@@ -13,5 +13,6 @@ internal class DocumentConfig : IEntityTypeConfiguration<Product>
         builder.Property(d => d.ImgUri).IsRequired();
         builder.Property(d => d.Price).IsRequired().HasPrecision(18, 2);
         builder.Property(d => d.Description).HasMaxLength(2000);
+        builder.Property(d => d.CrmId).IsRequired();
     }
 }
