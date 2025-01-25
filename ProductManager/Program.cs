@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ProductManager.Data;
+using ProductManager.Mapping;
 using ProductManager.Repositories;
 using ProductManager.Services;
 
@@ -15,7 +16,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddTransient<IProductRepository, ProductRepository>();
 builder.Services.AddTransient<IProductService, ProductService>();
-
+builder.Services.AddAutoMapper(typeof(ProductProfile));
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
