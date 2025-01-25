@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using AutoMapper;
 using ProductManager.Entities;
 using ProductManager.Exceptions;
@@ -53,8 +54,8 @@ public class ProductService : IProductService
         return dtoProduct;
     }
 
-    public void UpdateDescription(Guid id, string description)
+    public async Task UpdateDescription(Guid id, string description)
     {
-        _productRepository.UpdateDescription(id, description);
+        await _productRepository.UpdateDescription(id, description);
     }
 }
