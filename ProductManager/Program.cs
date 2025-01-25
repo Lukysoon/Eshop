@@ -16,6 +16,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddTransient<IProductRepository, ProductRepository>();
 builder.Services.AddTransient<IProductService, ProductService>();
+builder.Services.AddTransient<IApplicationDbContext, ApplicationDbContext>();
+
 builder.Services.AddAutoMapper(typeof(ProductProfile));
 var app = builder.Build();
 
