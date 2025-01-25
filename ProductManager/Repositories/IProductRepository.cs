@@ -7,7 +7,7 @@ public interface IProductRepository
 {
     public Task<List<Product>> GetPaginatedProducts(int pageIndex, int pageSize);
     public Task<List<Product>> GetAllProducts();
-    public Task<int> GetTotalCount(int pageIndex, int pageSize);
-    Product GetProduct(Guid id);
-    void UpdateDescription(Guid id, string description);
+    public Task<int> GetTotalCount();
+    public Task<Product?> GetProduct(Guid id);
+    public void UpdateDescription(Guid id, string description);
 }
