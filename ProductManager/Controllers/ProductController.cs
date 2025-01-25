@@ -70,7 +70,7 @@ namespace ProductManager.Controllers
         {
             try
             {
-                _productService.UpdateDescription(id, description);
+                await _productService.UpdateDescription(id, description);
 
                 return Ok();
             }

@@ -9,5 +9,5 @@ public interface IProductRepository
     public Task<List<Product>> GetAllProducts();
     public Task<int> GetTotalCount();
     public Task<Product?> GetProduct(Guid id);
-    public void UpdateDescription(Guid id, string description);
+    public Task UpdateDescription(Guid id, string description);
 }

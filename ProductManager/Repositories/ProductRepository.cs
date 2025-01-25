@@ -39,7 +39,7 @@ public class ProductRepository : IProductRepository
         return await _context.Products.CountAsync();
     }
 
-    public async void UpdateDescription(Guid id, string description)
+    public async Task UpdateDescription(Guid id, string description)
     {
         _context.Products.ExecuteUpdate(
             p => p.SetProperty(p => p.Description, p => description));
