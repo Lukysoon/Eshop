@@ -45,6 +45,9 @@ public class ProductService : IProductService
     {
         Product? product = await _productRepository.GetProduct(id);
         
+        if (product == null)
+            throw new NotFoundException($"Product with ID {id} not found.");
+
         ProductDto dtoProduct = _mapper.Map<ProductDto>(product);
 
         return dtoProduct;
