@@ -24,7 +24,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Apply migrations and seed data
+// Apply migrations
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
