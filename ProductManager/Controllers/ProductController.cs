@@ -26,7 +26,7 @@ namespace ProductManager.Controllers
             {
                 List<ProductDto> products = await _productService.GetPaginatedProducts(pageIndex, pageSize);
 
-                int totalPages = await _productService.GetTotalPagesCount(pageIndex, pageSize);
+                int totalPages = await _productService.GetTotalPagesCount(pageSize);
                 
                 return Ok(new PaginatedList<ProductDto>(products, pageIndex, totalPages));
             }
