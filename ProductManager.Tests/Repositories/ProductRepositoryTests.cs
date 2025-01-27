@@ -1,8 +1,10 @@
+using System.Reflection.Metadata.Ecma335;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using ProductManager.Data;
 using ProductManager.Entities;
 using ProductManager.Repositories;
+using ProductManager.Tests.Providers;
 
 namespace ProductManager.Tests.Repositories;
 
@@ -16,14 +18,18 @@ public class ProductRepositoryTests
     {
         _contextMock = new Mock<IApplicationDbContext>();
         _repository = new ProductRepository(_contextMock.Object);
-        
-        // Setup test data
-        _products = new List<Product>
+    }
+
+    private IQueryable<Product> GetDummyData()
+    {
+        IQueryable<Product> products = new List<Product>
         {
             new Product { Id = Guid.NewGuid(), Name = "Product 1", Description = "Description 1", Price = 10.99m },
             new Product { Id = Guid.NewGuid(), Name = "Product 2", Description = "Description 2", Price = 20.99m },
             new Product { Id = Guid.NewGuid(), Name = "Product 3", Description = "Description 3", Price = 30.99m }
-        };
+        }.AsQueryable();
+
+        return products; 
     }
 
     [Fact]
