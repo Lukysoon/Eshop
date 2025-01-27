@@ -34,7 +34,7 @@ public class ProductService : IProductService
         return dtoProducts;
     }
 
-    public async Task<int> GetTotalPagesCount(int pageIndex, int pageSize)
+    public async Task<int> GetTotalPagesCount(int pageSize)
     {
         var count = await _productRepository.GetTotalCount();
         var totalPages = (int)Math.Ceiling(count / (double)pageSize);
