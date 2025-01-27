@@ -28,8 +28,4 @@
     <ProjectReference Include="..\ProductManager\ProductManager.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Providers\" />
-  </ItemGroup>
-
 </Project>
