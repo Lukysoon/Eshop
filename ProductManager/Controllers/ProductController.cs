@@ -50,7 +50,7 @@ namespace ProductManager.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpGet]
         public async Task<IActionResult> GetProduct(Guid id)
         {
             try
