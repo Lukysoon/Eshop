@@ -1,136 +1,106 @@
-using System.Reflection.Metadata.Ecma335;
 using Microsoft.EntityFrameworkCore;
-using Moq;
 using ProductManager.Data;
 using ProductManager.Entities;
 using ProductManager.Repositories;
-using ProductManager.Tests.Providers;
+using ProductManager.Tests.Data;
 
 namespace ProductManager.Tests.Repositories;
 
-public class ProductRepositoryTests
+public class ProductRepositoryTests : IDisposable
 {
-    private readonly Mock<IApplicationDbContext> _contextMock;
+    private readonly ApplicationDbContext _context;
     private readonly ProductRepository _repository;
-    private readonly List<Product> _products;
+    private readonly List<Product> _testProducts;
 
     public ProductRepositoryTests()
     {
-        _contextMock = new Mock<IApplicationDbContext>();
-        _repository = new ProductRepository(_contextMock.Object);
-    }
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
 
-    private IQueryable<Product> GetDummyData()
-    {
-        IQueryable<Product> products = new List<Product>
-        {
-            new Product { Id = Guid.NewGuid(), Name = "Product 1", Description = "Description 1", Price = 10.99m },
-            new Product { Id = Guid.NewGuid(), Name = "Product 2", Description = "Description 2", Price = 20.99m },
-            new Product { Id = Guid.NewGuid(), Name = "Product 3", Description = "Description 3", Price = 30.99m }
-        }.AsQueryable();
+        _context = new ApplicationDbContext(options);
+        _repository = new ProductRepository(_context);
 
-        return products; 
+        // Setup test data
+        _testProducts = ProductData.GetProducts();
+
+        _context.Products.AddRange(_testProducts);
+        _context.SaveChanges();
     }
 
     [Fact]
     public async Task GetAllProducts_ShouldReturnAllProducts()
     {
-        // Arrange
-        var dbSetMock = new Mock<DbSet<Product>>();
-        dbSetMock.As<IQueryable<Product>>().Setup(m => m.Provider).Returns(_products.AsQueryable().Provider);
-        dbSetMock.As<IQueryable<Product>>().Setup(m => m.Expression).Returns(_products.AsQueryable().Expression);
-        dbSetMock.As<IQueryable<Product>>().Setup(m => m.ElementType).Returns(_products.AsQueryable().ElementType);
-        dbSetMock.As<IQueryable<Product>>().Setup(m => m.GetEnumerator()).Returns(_products.GetEnumerator());
-        
-        dbSetMock.As<IQueryable<Product>>().Setup(m => m.GetEnumerator()).Returns(_products.GetEnumerator());
-        
-        _contextMock.Setup(x => x.Products).Returns(dbSetMock.Object);
-
         // Act
         var result = await _repository.GetAllProducts();
 
         // Assert
-        Assert.Equal(_products.Count, result.Count);
-        Assert.Equal(_products, result);
+        Assert.Equal(_testProducts.Count, result.Count);
+        Assert.Equal(_testProducts[0].Id, result[0].Id);
+        Assert.Equal(_testProducts[1].Id, result[1].Id);
+        Assert.Equal(_testProducts[2].Id, result[2].Id);
     }
 
     [Fact]
     public async Task GetPaginatedProducts_ShouldReturnCorrectPage()
     {
-        // Arrange
-        var dbSetMock = new Mock<DbSet<Product>>();
-        dbSetMock.As<IQueryable<Product>>().Setup(m => m.Provider).Returns(_products.AsQueryable().Provider);
-        dbSetMock.As<IQueryable<Product>>().Setup(m => m.Expression).Returns(_products.AsQueryable().Expression);
-        dbSetMock.As<IQueryable<Product>>().Setup(m => m.ElementType).Returns(_products.AsQueryable().ElementType);
-        dbSetMock.As<IQueryable<Product>>().Setup(m => m.GetEnumerator()).Returns(_products.GetEnumerator());
-        
-        _contextMock.Setup(x => x.Products).Returns(dbSetMock.Object);
+        int pageIndex = 1;
+        int pageSize = 2;
 
-        // Act
-        var result = await _repository.GetPaginatedProducts(1, 2);
+        var result = await _repository.GetPaginatedProducts(pageIndex, pageSize);
 
-        // Assert
         Assert.Equal(2, result.Count);
-        Assert.Equal(_products.Take(2).ToList(), result);
+        Assert.Contains(_testProducts[0].Id, result.Select(p => p.Id));
+        Assert.Contains(_testProducts[1].Id, result.Select(p => p.Id));
     }
 
     [Fact]
     public async Task GetProduct_ShouldReturnCorrectProduct()
     {
-        // Arrange
-        var targetProduct = _products[0];
-        var dbSetMock = new Mock<DbSet<Product>>();
-        dbSetMock.As<IQueryable<Product>>().Setup(m => m.Provider).Returns(_products.AsQueryable().Provider);
-        dbSetMock.As<IQueryable<Product>>().Setup(m => m.Expression).Returns(_products.AsQueryable().Expression);
-        dbSetMock.As<IQueryable<Product>>().Setup(m => m.ElementType).Returns(_products.AsQueryable().ElementType);
-        dbSetMock.As<IQueryable<Product>>().Setup(m => m.GetEnumerator()).Returns(_products.GetEnumerator());
-        
-        _contextMock.Setup(x => x.Products).Returns(dbSetMock.Object);
+        var expectedId = _testProducts[1].Id;
 
-        // Act
-        var result = await _repository.GetProduct(targetProduct.Id);
+        var result = await _repository.GetProduct(expectedId);
 
-        // Assert
         Assert.NotNull(result);
-        Assert.Equal(targetProduct.Id, result.Id);
-        Assert.Equal(targetProduct.Name, result.Name);
+        Assert.Equal(expectedId, result.Id);
+        Assert.Equal(_testProducts[1].Name, result.Name);
+        Assert.Equal(_testProducts[1].Description, result.Description);
+    }
+
+    [Fact]
+    public async Task GetProduct_WithInvalidId_ShouldReturnNull()
+    {
+        var invalidId = Guid.NewGuid();
+
+        var result = await _repository.GetProduct(invalidId);
+
+        Assert.Null(result);
     }
 
     [Fact]
     public async Task GetTotalCount_ShouldReturnCorrectCount()
     {
-        // Arrange
-        var dbSetMock = new Mock<DbSet<Product>>();
-        dbSetMock.As<IQueryable<Product>>().Setup(m => m.Provider).Returns(_products.AsQueryable().Provider);
-        dbSetMock.As<IQueryable<Product>>().Setup(m => m.Expression).Returns(_products.AsQueryable().Expression);
-        dbSetMock.As<IQueryable<Product>>().Setup(m => m.ElementType).Returns(_products.AsQueryable().ElementType);
-        dbSetMock.As<IQueryable<Product>>().Setup(m => m.GetEnumerator()).Returns(_products.GetEnumerator());
-        
-        _contextMock.Setup(x => x.Products).Returns(dbSetMock.Object);
-
-        // Act
         var result = await _repository.GetTotalCount();
 
-        // Assert
-        Assert.Equal(_products.Count, result);
+        Assert.Equal(_testProducts.Count, result);
     }
 
     [Fact]
-    public async Task UpdateDescription_ShouldCallSaveChanges()
+    public async Task UpdateDescription_ShouldUpdateProductDescription()
     {
-        // Arrange
-        var productId = Guid.NewGuid();
+        var productId = _testProducts[0].Id;
         var newDescription = "Updated Description";
-        var dbSetMock = new Mock<DbSet<Product>>();
-        
-        _contextMock.Setup(x => x.Products).Returns(dbSetMock.Object);
-        _contextMock.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
-            .Returns(Task.FromResult(1));
 
-        // Act
         await _repository.UpdateDescription(productId, newDescription);
+        var updatedProduct = await _repository.GetProduct(productId);
 
-        // Assert
-        _contextMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        Assert.NotNull(updatedProduct);
+        Assert.Equal(newDescription, updatedProduct.Description);
+    }
+
+    public void Dispose()
+    {
+        _context.Database.EnsureDeleted();
+        _context.Dispose();
     }
 }

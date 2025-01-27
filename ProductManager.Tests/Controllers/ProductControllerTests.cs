@@ -1,163 +1,150 @@
+using System.Runtime.InteropServices;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using ProductManager.Controllers;
 using ProductManager.Exceptions;
 using ProductManager.Models.Dto;
 using ProductManager.Services;
+using ProductManager.Tests.Data;
 
 namespace ProductManager.Tests.Controllers;
 
 public class ProductControllerTests
 {
-    private readonly Mock<IProductService> _serviceMock;
+    private readonly Mock<IProductService> _mockService;
     private readonly ProductController _controller;
-    private readonly List<ProductDto> _productDtos;
+    private readonly List<ProductDto> _testProductDtos;
 
     public ProductControllerTests()
     {
-        _serviceMock = new Mock<IProductService>();
-        _controller = new ProductController(_serviceMock.Object);
+        _mockService = new Mock<IProductService>();
+        _controller = new ProductController(_mockService.Object);
 
-        // Setup test data
-        _productDtos = new List<ProductDto>
-        {
-            new ProductDto { Id = Guid.NewGuid(), Name = "Product 1", Description = "Description 1", Price = 10.99m },
-            new ProductDto { Id = Guid.NewGuid(), Name = "Product 2", Description = "Description 2", Price = 20.99m },
-            new ProductDto { Id = Guid.NewGuid(), Name = "Product 3", Description = "Description 3", Price = 30.99m }
-        };
+        _testProductDtos = ProductData.GetProductDtos();
     }
 
     [Fact]
-    public async Task GetPaginatedProducts_ReturnsOkResult_WithPaginatedList()
+    public async Task GetPaginatedProducts_ShouldReturnOkWithPaginatedList()
     {
-        // Arrange
-        int pageIndex = 1;
+        int pageIndex = 2;
         int pageSize = 2;
         int totalPages = 2;
-        var paginatedProducts = _productDtos.Take(pageSize).ToList();
+        var expectedResult = _testProductDtos.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
 
-        _serviceMock.Setup(x => x.GetPaginatedProducts(pageIndex, pageSize))
-            .ReturnsAsync(paginatedProducts);
-        _serviceMock.Setup(x => x.GetTotalPagesCount(pageIndex, pageSize))
+        _mockService.Setup(s => s.GetPaginatedProducts(pageIndex, pageSize))
+            .ReturnsAsync(expectedResult);
+        _mockService.Setup(s => s.GetTotalPagesCount(pageSize))
             .ReturnsAsync(totalPages);
 
-        // Act
         var result = await _controller.GetPaginatedProducts(pageIndex, pageSize);
 
-        // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
         var paginatedList = Assert.IsType<PaginatedList<ProductDto>>(okResult.Value);
-        Assert.Equal(pageSize, paginatedList.Items.Count);
+        Assert.Equal(expectedResult.Count, paginatedList.Items.Count);
         Assert.Equal(pageIndex, paginatedList.PageIndex);
         Assert.Equal(totalPages, paginatedList.TotalPages);
     }
 
     [Fact]
-    public async Task GetPaginatedProducts_WhenExceptionOccurs_ReturnsInternalServerError()
+    public async Task GetPaginatedProducts_WhenExceptionOccurs_ShouldReturn500()
     {
-        // Arrange
-        _serviceMock.Setup(x => x.GetPaginatedProducts(It.IsAny<int>(), It.IsAny<int>()))
+        int pageIndex = 2;
+        int pageSize = 2;
+
+        _mockService.Setup(s => s.GetPaginatedProducts(pageIndex, pageSize))
             .ThrowsAsync(new Exception("Test exception"));
 
-        // Act
-        var result = await _controller.GetPaginatedProducts(1, 10);
+        var result = await _controller.GetPaginatedProducts(pageIndex, pageSize);
 
-        // Assert
         var statusCodeResult = Assert.IsType<ObjectResult>(result);
-        Assert.Equal(500, statusCodeResult.StatusCode);
+        Assert.Equal(StatusCodes.Status500InternalServerError, statusCodeResult.StatusCode);
     }
 
     [Fact]
-    public async Task GetAllProducts_ReturnsOkResult_WithAllProducts()
+    public async Task GetAllProducts_ShouldReturnOkWithProducts()
     {
-        // Arrange
-        _serviceMock.Setup(x => x.GetAllProducts())
-            .ReturnsAsync(_productDtos);
+        _mockService.Setup(s => s.GetAllProducts())
+            .ReturnsAsync(_testProductDtos);
 
-        // Act
         var result = await _controller.GetAllProducts();
 
-        // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
         var products = Assert.IsType<List<ProductDto>>(okResult.Value);
-        Assert.Equal(_productDtos.Count, products.Count);
+        Assert.Equal(_testProductDtos.Count, products.Count);
     }
 
     [Fact]
-    public async Task GetAllProducts_WhenExceptionOccurs_ReturnsInternalServerError()
+    public async Task GetAllProducts_WhenExceptionOccurs_ShouldReturn500()
     {
-        // Arrange
-        _serviceMock.Setup(x => x.GetAllProducts())
+        _mockService.Setup(s => s.GetAllProducts())
             .ThrowsAsync(new Exception("Test exception"));
 
-        // Act
         var result = await _controller.GetAllProducts();
 
-        // Assert
         var statusCodeResult = Assert.IsType<ObjectResult>(result);
-        Assert.Equal(500, statusCodeResult.StatusCode);
+        Assert.Equal(StatusCodes.Status500InternalServerError, statusCodeResult.StatusCode);
     }
 
     [Fact]
-    public async Task GetProduct_WhenExists_ReturnsOkResult()
+    public async Task GetProduct_ShouldReturnOkWithProduct()
     {
-        // Arrange
-        var productDto = _productDtos[0];
-        _serviceMock.Setup(x => x.GetProduct(productDto.Id))
-            .ReturnsAsync(productDto);
+        var productId = _testProductDtos[0].Id;
+        _mockService.Setup(s => s.GetProduct(productId))
+            .ReturnsAsync(_testProductDtos[0]);
 
-        // Act
-        var result = await _controller.GetProduct(productDto.Id);
+        var result = await _controller.GetProduct(productId);
 
-        // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
-        var returnedProduct = Assert.IsType<ProductDto>(okResult.Value);
-        Assert.Equal(productDto.Id, returnedProduct.Id);
+        var product = Assert.IsType<ProductDto>(okResult.Value);
+        Assert.Equal(_testProductDtos[0].Id, product.Id);
     }
 
     [Fact]
-    public async Task GetProduct_WhenNotFound_ReturnsInternalServerError()
-    {
-        // Arrange
-        var nonExistentId = Guid.NewGuid();
-        _serviceMock.Setup(x => x.GetProduct(nonExistentId))
-            .ThrowsAsync(new NotFoundException($"Product with ID {nonExistentId} not found."));
-
-        // Act
-        var result = await _controller.GetProduct(nonExistentId);
-
-        // Assert
-        var statusCodeResult = Assert.IsType<ObjectResult>(result);
-        Assert.Equal(500, statusCodeResult.StatusCode);
-    }
-
-    [Fact]
-    public async Task UpdateProductDescription_WhenSuccessful_ReturnsOkResult()
+    public async Task GetProduct_WhenExceptionOccurs_ShouldReturn500()
     {
         // Arrange
         var productId = Guid.NewGuid();
-        var newDescription = "Updated Description";
-
-        // Act
-        var result = await _controller.UpdateProductDescription(productId, newDescription);
-
-        // Assert
-        Assert.IsType<OkResult>(result);
-        _serviceMock.Verify(x => x.UpdateDescription(productId, newDescription), Times.Once);
-    }
-
-    [Fact]
-    public async Task UpdateProductDescription_WhenExceptionOccurs_ReturnsInternalServerError()
-    {
-        // Arrange
-        _serviceMock.Setup(x => x.UpdateDescription(It.IsAny<Guid>(), It.IsAny<string>()))
+        _mockService.Setup(s => s.GetProduct(productId))
             .ThrowsAsync(new Exception("Test exception"));
 
         // Act
-        var result = await _controller.UpdateProductDescription(Guid.NewGuid(), "test");
+        var result = await _controller.GetProduct(productId);
 
         // Assert
         var statusCodeResult = Assert.IsType<ObjectResult>(result);
-        Assert.Equal(500, statusCodeResult.StatusCode);
+        Assert.Equal(StatusCodes.Status500InternalServerError, statusCodeResult.StatusCode);
+    }
+
+    [Fact]
+    public async Task UpdateProductDescription_ShouldReturnOk()
+    {
+        // Arrange
+        var productId = Guid.NewGuid();
+        var description = "New Description";
+
+        // Act
+        var result = await _controller.UpdateProductDescription(productId, description);
+
+        // Assert
+        Assert.IsType<OkResult>(result);
+        _mockService.Verify(s => s.UpdateDescription(productId, description), Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateProductDescription_WhenExceptionOccurs_ShouldReturn500()
+    {
+        // Arrange
+        var productId = Guid.NewGuid();
+        var description = "New Description";
+        _mockService.Setup(s => s.UpdateDescription(productId, description))
+            .ThrowsAsync(new Exception("Test exception"));
+
+        // Act
+        var result = await _controller.UpdateProductDescription(productId, description);
+
+        // Assert
+        var statusCodeResult = Assert.IsType<ObjectResult>(result);
+        Assert.Equal(StatusCodes.Status500InternalServerError, statusCodeResult.StatusCode);
     }
 }

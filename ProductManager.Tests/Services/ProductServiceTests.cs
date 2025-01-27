@@ -5,141 +5,113 @@ using ProductManager.Exceptions;
 using ProductManager.Models.Dto;
 using ProductManager.Repositories;
 using ProductManager.Services;
+using ProductManager.Tests.Data;
 
 namespace ProductManager.Tests.Services;
 
 public class ProductServiceTests
 {
-    private readonly Mock<IProductRepository> _repositoryMock;
-    private readonly Mock<IMapper> _mapperMock;
+    private readonly Mock<IProductRepository> _mockRepository;
+    private readonly Mock<IMapper> _mockMapper;
     private readonly ProductService _service;
-    private readonly List<Product> _products;
-    private readonly List<ProductDto> _productDtos;
+    private readonly List<Product> _testProducts;
+    private readonly List<ProductDto> _testProductDtos;
 
     public ProductServiceTests()
     {
-        _repositoryMock = new Mock<IProductRepository>();
-        _mapperMock = new Mock<IMapper>();
-        _service = new ProductService(_repositoryMock.Object, _mapperMock.Object);
+        _mockRepository = new Mock<IProductRepository>();
+        _mockMapper = new Mock<IMapper>();
+        _service = new ProductService(_mockRepository.Object, _mockMapper.Object);
 
-        // Setup test data
-        _products = new List<Product>
-        {
-            new Product { Id = Guid.NewGuid(), Name = "Product 1", Description = "Description 1", Price = 10.99m },
-            new Product { Id = Guid.NewGuid(), Name = "Product 2", Description = "Description 2", Price = 20.99m },
-            new Product { Id = Guid.NewGuid(), Name = "Product 3", Description = "Description 3", Price = 30.99m }
-        };
-
-        _productDtos = _products.Select(p => new ProductDto 
-        { 
-            Id = p.Id, 
-            Name = p.Name, 
-            Description = p.Description, 
-            Price = p.Price 
-        }).ToList();
+        _testProducts = ProductData.GetProducts();
+        _testProductDtos = ProductData.GetProductDtos();
     }
 
     [Fact]
-    public async Task GetPaginatedProducts_ShouldReturnMappedDtos()
+    public async Task GetPaginatedProducts_ShouldReturnMappedProducts()
     {
-        // Arrange
-        int pageIndex = 1;
+        int pageIndex = 2;
         int pageSize = 2;
-        _repositoryMock.Setup(x => x.GetPaginatedProducts(pageIndex, pageSize))
-            .ReturnsAsync(_products.Take(pageSize).ToList());
-        _mapperMock.Setup(x => x.Map<List<ProductDto>>(It.IsAny<List<Product>>()))
-            .Returns(_productDtos.Take(pageSize).ToList());
+        
+        var repositoryResult = _testProducts.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
+        var mapperResult = _testProductDtos.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
 
-        // Act
+        _mockRepository.Setup(r => r.GetPaginatedProducts(pageIndex, pageSize))
+            .ReturnsAsync(repositoryResult);
+        _mockMapper.Setup(m => m.Map<List<ProductDto>>(It.IsAny<List<Product>>()))
+            .Returns(mapperResult);
+
         var result = await _service.GetPaginatedProducts(pageIndex, pageSize);
 
-        // Assert
         Assert.Equal(pageSize, result.Count);
-        _repositoryMock.Verify(x => x.GetPaginatedProducts(pageIndex, pageSize), Times.Once);
-        _mapperMock.Verify(x => x.Map<List<ProductDto>>(It.IsAny<List<Product>>()), Times.Once);
+        Assert.Contains(_testProductDtos[2].Id, result.Select(r => r.Id));
+        Assert.Contains(_testProductDtos[3].Id, result.Select(r => r.Id));
     }
 
     [Fact]
-    public async Task GetAllProducts_ShouldReturnAllMappedDtos()
+    public async Task GetAllProducts_ShouldReturnMappedProducts()
     {
-        // Arrange
-        _repositoryMock.Setup(x => x.GetAllProducts())
-            .ReturnsAsync(_products);
-        _mapperMock.Setup(x => x.Map<List<ProductDto>>(It.IsAny<List<Product>>()))
-            .Returns(_productDtos);
+        _mockRepository.Setup(r => r.GetAllProducts())
+            .ReturnsAsync(_testProducts);
+        _mockMapper.Setup(m => m.Map<List<ProductDto>>(It.IsAny<List<Product>>()))
+            .Returns(_testProductDtos);
 
-        // Act
         var result = await _service.GetAllProducts();
 
-        // Assert
-        Assert.Equal(_productDtos.Count, result.Count);
-        _repositoryMock.Verify(x => x.GetAllProducts(), Times.Once);
-        _mapperMock.Verify(x => x.Map<List<ProductDto>>(It.IsAny<List<Product>>()), Times.Once);
+        Assert.Equal(_testProductDtos.Count, result.Count);
+        Assert.Contains(_testProductDtos[0].Id, result.Select(r => r.Id));
+        Assert.Contains(_testProductDtos[_testProductDtos.Count - 1].Id, result.Select(r => r.Id));
     }
 
     [Fact]
-    public async Task GetTotalPagesCount_ShouldCalculateCorrectly()
+    public async Task GetTotalPagesCount_ShouldReturnCorrectCount()
     {
-        // Arrange
-        int totalCount = 10;
-        int pageSize = 3;
-        int expectedPages = 4; // Ceiling of 10/3
-        _repositoryMock.Setup(x => x.GetTotalCount())
-            .ReturnsAsync(totalCount);
+        int pageSize = 2;
+        int totalProductCount = 4;
 
-        // Act
-        var result = await _service.GetTotalPagesCount(1, pageSize);
+        _mockRepository.Setup(r => r.GetTotalCount())
+            .ReturnsAsync(totalProductCount);
 
-        // Assert
-        Assert.Equal(expectedPages, result);
-        _repositoryMock.Verify(x => x.GetTotalCount(), Times.Once);
+        var result = await _service.GetTotalPagesCount(pageSize);
+
+        Assert.Equal(2, result); // Ceiling of 4/2 = 2 pages
     }
 
     [Fact]
-    public async Task GetProduct_WhenExists_ShouldReturnMappedDto()
+    public async Task GetProduct_ShouldReturnMappedProduct()
     {
-        // Arrange
-        var product = _products[0];
-        var productDto = _productDtos[0];
-        _repositoryMock.Setup(x => x.GetProduct(product.Id))
-            .ReturnsAsync(product);
-        _mapperMock.Setup(x => x.Map<ProductDto>(product))
-            .Returns(productDto);
+        var productId = _testProducts[0].Id;
+        _mockRepository.Setup(r => r.GetProduct(productId))
+            .ReturnsAsync(_testProducts[0]);
+        _mockMapper.Setup(m => m.Map<ProductDto>(It.IsAny<Product>()))
+            .Returns(_testProductDtos[0]);
 
-        // Act
-        var result = await _service.GetProduct(product.Id);
+        var result = await _service.GetProduct(productId);
 
-        // Assert
-        Assert.Equal(productDto.Id, result.Id);
-        Assert.Equal(productDto.Name, result.Name);
-        _repositoryMock.Verify(x => x.GetProduct(product.Id), Times.Once);
-        _mapperMock.Verify(x => x.Map<ProductDto>(product), Times.Once);
+        Assert.Equal(_testProductDtos[0].Id, result.Id);
+        Assert.Equal(_testProductDtos[0].Name, result.Name);
+        Assert.Equal(_testProductDtos[0].Description, result.Description);
     }
 
     [Fact]
-    public async Task GetProduct_WhenNotExists_ShouldThrowNotFoundException()
+    public async Task GetProduct_WithInvalidId_ShouldThrowNotFoundException()
     {
-        // Arrange
-        var nonExistentId = Guid.NewGuid();
-        _repositoryMock.Setup(x => x.GetProduct(nonExistentId))
+        var invalidId = Guid.NewGuid();
+        _mockRepository.Setup(r => r.GetProduct(invalidId))
             .ReturnsAsync((Product?)null);
 
-        // Act & Assert
         await Assert.ThrowsAsync<NotFoundException>(() => 
-            _service.GetProduct(nonExistentId));
+            _service.GetProduct(invalidId));
     }
 
     [Fact]
     public async Task UpdateDescription_ShouldCallRepository()
     {
-        // Arrange
         var productId = Guid.NewGuid();
-        var newDescription = "Updated Description";
+        var description = "New Description";
 
-        // Act
-        await _service.UpdateDescription(productId, newDescription);
+        await _service.UpdateDescription(productId, description);
 
-        // Assert
-        _repositoryMock.Verify(x => x.UpdateDescription(productId, newDescription), Times.Once);
+        _mockRepository.Verify(r => r.UpdateDescription(productId, description), Times.Once);
     }
 }
