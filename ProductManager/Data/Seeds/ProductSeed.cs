@@ -5,36 +5,64 @@ namespace ProductManager.Data.Seeds;
 
 public static class ProductSeed
 {
-    public static void SeedData(ModelBuilder modelBuilder)
+    public static Product[] SeedData()
     {
-        modelBuilder.Entity<Product>().HasData(
-            new Product
+        return new[]
             {
-                Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
-                Name = "Laptop",
-                Description = "High performance laptop",
-                Price = 999.99m,
-                ImgUri = "https://example.com/laptop.jpg",
-                CrmId = Guid.Parse("21111111-1111-1111-1111-111111111111")
-            },
-            new Product
-            {
-                Id = Guid.Parse("22222222-2222-2222-2222-222222222222"),
-                Name = "Smartphone",
-                Description = "Latest model smartphone",
-                Price = 699.99m,
-                ImgUri = "https://example.com/smartphone.jpg",
-                CrmId = Guid.Parse("32222222-2222-2222-2222-222222222222")
-            },
-            new Product
-            {
-                Id = Guid.Parse("33333333-3333-3333-3333-333333333333"),
-                Name = "Headphones",
-                Description = "Wireless noise-cancelling headphones",
-                Price = 199.99m,
-                ImgUri = "https://example.com/headphones.jpg",
-                CrmId = Guid.Parse("43333333-3333-3333-3333-333333333333")
-            }
-        );
+                new Product
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Product 1",
+                    ImgUri = "http://test.com/product1.jpg",
+                    Price = 19.99m,
+                    Description = "This is the first product.",
+                    CrmId = Guid.NewGuid()
+                },
+                new Product
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Product 2",
+                    ImgUri = "http://test.com/product2.jpg",
+                    Price = 24.99m,
+                    Description = "This is the second product.",
+                    CrmId = Guid.NewGuid()
+                },
+                new Product
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Product 3",
+                    ImgUri = "http://test.com/product3.jpg",
+                    Price = 14.99m,
+                    Description = "This is the third product.",
+                    CrmId = Guid.NewGuid()
+                },
+                new Product
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Product 4",
+                    ImgUri = "http://test.com/product4.jpg",
+                    Price = 29.99m,
+                    Description = "This is the fourth product.",
+                    CrmId = Guid.NewGuid()
+                },
+                new Product
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Product 5",
+                    ImgUri = "http://test.com/product5.jpg",
+                    Price = 9.99m,
+                    Description = "This is the fifth product.",
+                    CrmId = Guid.NewGuid()
+                },
+                new Product
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Product 6",
+                    ImgUri = "http://test.com/product6.jpg",
+                    Price = 39.99m,
+                    Description = "This is the sixth product.",
+                    CrmId = Guid.NewGuid()
+                }
+            };
     }
 }
