@@ -8,7 +8,7 @@ using ProductManager.Services;
 
 namespace ProductManager.Controllers
 {
-    [Route("api/products")]
+    [Route("api")]
     [ApiController]
     public class ProductController : ControllerBase
     {
@@ -19,7 +19,8 @@ namespace ProductManager.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetPaginatedProducts(int pageIndex, int pageSize)
+        [Route("products/{pageIndex}/{pageSize}")]
+        public async Task<IActionResult> GetPaginatedProducts([FromRoute] int pageIndex, [FromRoute]int pageSize)
         {
             try
             {
@@ -36,6 +37,7 @@ namespace ProductManager.Controllers
         }
 
         [HttpGet]
+        [Route("products")]
         public async Task<IActionResult> GetAllProducts()
         {
             try
@@ -51,6 +53,7 @@ namespace ProductManager.Controllers
         }
 
         [HttpGet]
+        [Route("product/{id}")]
         public async Task<IActionResult> GetProduct(Guid id)
         {
             try
@@ -66,7 +69,8 @@ namespace ProductManager.Controllers
         }
 
         [HttpPatch]
-        public async Task<IActionResult> UpdateProductDescription(Guid id, string description)
+        [Route("product/update/description")]
+        public async Task<IActionResult> UpdateProductDescription([FromQuery] Guid id,[FromQuery] string description)
         {
             try
             {
