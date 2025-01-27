@@ -2,6 +2,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using ProductManager.Data;
 using ProductManager.Entities;
+using ProductManager.Exceptions;
 
 namespace ProductManager.Repositories;
 
@@ -41,9 +42,12 @@ public class ProductRepository : IProductRepository
 
     public async Task UpdateDescription(Guid id, string description)
     {
-        await _context.Products.Where(p => p.Id == id).ExecuteUpdateAsync(
-            p => p.SetProperty(p => p.Description, p => description));
+        var product = await _context.Products.Where(p => p.Id == id).FirstOrDefaultAsync();
         
+        if (product == null)
+            throw new NotFoundException($"Product with id {id} does not exist. Cannot update description.");
+
+        product.Description = description;
         await _context.SaveChangesAsync();
     }
 }
