@@ -41,7 +41,7 @@ public class ProductRepository : IProductRepository
 
     public async Task UpdateDescription(Guid id, string description)
     {
-        _context.Products.Where(p => p.Id == id).ExecuteUpdate(
+        await _context.Products.Where(p => p.Id == id).ExecuteUpdateAsync(
             p => p.SetProperty(p => p.Description, p => description));
         
         await _context.SaveChangesAsync();
