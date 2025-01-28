@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -57,7 +58,9 @@ namespace ProductManager.Controllers.V1
         [HttpPatch]
         [MapToApiVersion("1.0")]
         [Route("product/update/description")]
-        public async Task<IActionResult> UpdateProductDescription([FromQuery] Guid id,[FromQuery] string description)
+        public async Task<IActionResult> UpdateProductDescription(
+            [FromQuery] Guid id,
+            [FromQuery] [StringLength(2000, ErrorMessage = "Name cannot exceed 2000 characters.")] string description)
         {
             try
             {
