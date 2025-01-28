@@ -23,7 +23,7 @@ namespace ProductManager.Controllers.V2
         [HttpGet]
         [MapToApiVersion("2.0")]
         [Route("products/{pageIndex}/{pageSize}")]
-        public async Task<IActionResult> GetPaginatedProducts([FromRoute] int pageIndex, [FromRoute]int pageSize)
+        public async Task<IActionResult> GetPaginatedProducts([FromRoute] int pageIndex, [FromRoute] int pageSize)
         {
             try
             {
