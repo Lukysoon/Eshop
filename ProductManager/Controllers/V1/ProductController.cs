@@ -8,10 +8,10 @@ using ProductManager.Services;
 
 namespace ProductManager.Controllers.V1
 {
+    [ApiController]
     [Route("api")]
     [Route("api/v{version:apiVersion}")]
     [ApiVersion("1.0")]
-    [ApiController]
     public class ProductController : ControllerBase
     {
         private readonly IProductService _productService;
@@ -20,8 +20,8 @@ namespace ProductManager.Controllers.V1
             _productService = productService;
         }
         
-        [MapToApiVersion("1.0")]
         [HttpGet]
+        [MapToApiVersion("1.0")]
         [Route("products")]
         public async Task<IActionResult> GetAllProducts()
         {
@@ -37,8 +37,8 @@ namespace ProductManager.Controllers.V1
             }
         }
 
-        [MapToApiVersion("1.0")]
         [HttpGet]
+        [MapToApiVersion("1.0")]
         [Route("product/{id}")]
         public async Task<IActionResult> GetProduct(Guid id)
         {
@@ -54,8 +54,8 @@ namespace ProductManager.Controllers.V1
             }
         }
 
-        [MapToApiVersion("1.0")]
         [HttpPatch]
+        [MapToApiVersion("1.0")]
         [Route("product/update/description")]
         public async Task<IActionResult> UpdateProductDescription([FromQuery] Guid id,[FromQuery] string description)
         {
