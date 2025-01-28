@@ -72,7 +72,7 @@ Swagger UI is available at `/swagger` endpoint for exploring and testing API end
 ## Running Unit Tests
 To run unit tests, use the following command:
 ```bash
-cd cd ProductManager.Tests
+cd ProductManager.Tests
 dotnet test
 ```
 
