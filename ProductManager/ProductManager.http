@@ -1,6 +1,0 @@
-@ProductManager_HostAddress = http://localhost:5116
-
-GET {{ProductManager_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
