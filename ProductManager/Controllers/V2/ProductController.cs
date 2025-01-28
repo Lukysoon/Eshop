@@ -9,6 +9,8 @@ using ProductManager.Services;
 namespace ProductManager.Controllers.V2
 {
     [Route("api")]
+    [Route("api/v{version:apiVersion}")]
+    [ApiVersion("2.0")]
     [ApiController]
     public class ProductController : ControllerBase
     {
@@ -19,6 +21,7 @@ namespace ProductManager.Controllers.V2
         }
 
         [HttpGet]
+        [MapToApiVersion("2.0")]
         [Route("products/{pageIndex}/{pageSize}")]
         public async Task<IActionResult> GetPaginatedProducts([FromRoute] int pageIndex, [FromRoute]int pageSize)
         {
@@ -37,22 +40,7 @@ namespace ProductManager.Controllers.V2
         }
 
         [HttpGet]
-        [Route("products")]
-        public async Task<IActionResult> GetAllProducts()
-        {
-            try
-            {
-                List<ProductDto> products = await _productService.GetAllProducts();
-
-                return Ok(products);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex);                
-            }
-        }
-
-        [HttpGet]
+        [MapToApiVersion("2.0")]
         [Route("product/{id}")]
         public async Task<IActionResult> GetProduct(Guid id)
         {
@@ -69,6 +57,7 @@ namespace ProductManager.Controllers.V2
         }
 
         [HttpPatch]
+        [MapToApiVersion("2.0")]
         [Route("product/update/description")]
         public async Task<IActionResult> UpdateProductDescription([FromQuery] Guid id,[FromQuery] string description)
         {

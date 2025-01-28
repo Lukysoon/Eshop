@@ -9,6 +9,8 @@ using ProductManager.Services;
 namespace ProductManager.Controllers.V1
 {
     [Route("api")]
+    [Route("api/v{version:apiVersion}")]
+    [ApiVersion("1.0")]
     [ApiController]
     public class ProductController : ControllerBase
     {
@@ -17,25 +19,8 @@ namespace ProductManager.Controllers.V1
         {
             _productService = productService;
         }
-
-        [HttpGet]
-        [Route("products/{pageIndex}/{pageSize}")]
-        public async Task<IActionResult> GetPaginatedProducts([FromRoute] int pageIndex, [FromRoute]int pageSize)
-        {
-            try
-            {
-                List<ProductDto> products = await _productService.GetPaginatedProducts(pageIndex, pageSize);
-
-                int totalPages = await _productService.GetTotalPagesCount(pageSize);
-                
-                return Ok(new PaginatedList<ProductDto>(products, pageIndex, totalPages));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex);                
-            }
-        }
-
+        
+        [MapToApiVersion("1.0")]
         [HttpGet]
         [Route("products")]
         public async Task<IActionResult> GetAllProducts()
@@ -52,6 +37,7 @@ namespace ProductManager.Controllers.V1
             }
         }
 
+        [MapToApiVersion("1.0")]
         [HttpGet]
         [Route("product/{id}")]
         public async Task<IActionResult> GetProduct(Guid id)
@@ -68,6 +54,7 @@ namespace ProductManager.Controllers.V1
             }
         }
 
+        [MapToApiVersion("1.0")]
         [HttpPatch]
         [Route("product/update/description")]
         public async Task<IActionResult> UpdateProductDescription([FromQuery] Guid id,[FromQuery] string description)
