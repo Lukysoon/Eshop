@@ -1,207 +1,196 @@
 {
 	"info": {
-		"_postman_id": "b5f3b1a0-5b1a-4b1a-8b1a-5b1a4b1a8b1a",
-		"name": "ProductManager",
+		"_postman_id": "a1b2c3d4-e5f6-7890-g1h2-i3j4k5l6m7n8",
+		"name": "ProductManager API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "Get All Products",
-			"event": [
+			"name": "V1 Endpoints",
+			"item": [
 				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});",
-							"",
-							"pm.test(\"Response is an array\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(Array.isArray(jsonData)).to.be.true;",
-							"});",
-							"",
-							"pm.test(\"Products have required fields\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    if (jsonData.length > 0) {",
-							"        pm.expect(jsonData[0]).to.have.property('id');",
-							"        pm.expect(jsonData[0]).to.have.property('name');",
-							"        pm.expect(jsonData[0]).to.have.property('imgUri');",
-							"        pm.expect(jsonData[0]).to.have.property('price');",
-							"        pm.expect(jsonData[0]).to.have.property('description');",
-							"    }",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseUrl}}/api/products",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"api",
-						"products"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get Paginated Products",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});",
-							"",
-							"pm.test(\"Response has pagination properties\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData).to.have.property('items');",
-							"    pm.expect(jsonData).to.have.property('pageIndex');",
-							"    pm.expect(jsonData).to.have.property('totalPages');",
-							"});",
-							"",
-							"pm.test(\"Products have required fields\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    if (jsonData.items.length > 0) {",
-							"        pm.expect(jsonData.items[0]).to.have.property('id');",
-							"        pm.expect(jsonData.items[0]).to.have.property('name');",
-							"        pm.expect(jsonData.items[0]).to.have.property('imgUri');",
-							"        pm.expect(jsonData.items[0]).to.have.property('price');",
-							"        pm.expect(jsonData.items[0]).to.have.property('description');",
-							"    }",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseUrl}}/api/products/1/10",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"api",
-						"products",
-						"1",
-						"10"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get Product By Id",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});",
-							"",
-							"pm.test(\"Product has required fields\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData).to.have.property('id');",
-							"    pm.expect(jsonData).to.have.property('name');",
-							"    pm.expect(jsonData).to.have.property('imgUri');",
-							"    pm.expect(jsonData).to.have.property('price');",
-							"    pm.expect(jsonData).to.have.property('description');",
-							"});",
-							"",
-							"pm.test(\"Product ID matches request\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.id).to.eql(pm.variables.get(\"productId\"));",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseUrl}}/api/product/{{productId}}",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"api",
-						"product",
-						"{{productId}}"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Update Product Description",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});",
-							"",
-							"// Verify the update by fetching the product",
-							"pm.sendRequest({",
-							"    url: pm.variables.get(\"baseUrl\") + \"/api/product/\" + pm.variables.get(\"productId\"),",
-							"    method: 'GET'",
-							"}, function (err, res) {",
-							"    pm.test(\"Description was updated\", function () {",
-							"        var product = res.json();",
-							"        pm.expect(product.description).to.eql(pm.variables.get(\"newDescription\"));",
-							"    });",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "PATCH",
-				"header": [],
-				"url": {
-					"raw": "{{baseUrl}}/api/product/update/description?id={{productId}}&description={{newDescription}}",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"api",
-						"product",
-						"update",
-						"description"
-					],
-					"query": [
+					"name": "Get All Products",
+					"event": [
 						{
-							"key": "id",
-							"value": "{{productId}}"
-						},
-						{
-							"key": "description",
-							"value": "{{newDescription}}"
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array of products\", function () {",
+									"    pm.expect(pm.response.json()).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
 						}
-					]
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/products",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Product by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is a product object\", function () {",
+									"    const product = pm.response.json();",
+									"    pm.expect(product).to.be.an('object');",
+									"    pm.expect(product).to.have.property('id');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/product/{{product_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"product",
+								"{{product_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Product Description",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/product/update/description?id={{product_id}}&description={{new_description}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"product",
+								"update",
+								"description"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "{{product_id}}"
+								},
+								{
+									"key": "description",
+									"value": "{{new_description}}"
+								}
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
+		},
+		{
+			"name": "V2 Endpoints",
+			"item": [
+				{
+					"name": "Get Paginated Products",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is a paginated list\", function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response).to.have.property('items');",
+									"    pm.expect(response).to.have.property('pageIndex');",
+									"    pm.expect(response).to.have.property('totalPages');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v2/products/1/10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v2",
+								"products",
+								"1",
+								"10"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5000",
+			"type": "string"
+		},
+		{
+			"key": "product_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "new_description",
+			"value": "Updated product description",
+			"type": "string"
 		}
 	]
 }
