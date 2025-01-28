@@ -12,10 +12,10 @@ namespace ProductManager.Controllers.V2
     [Route("api")]
     [Route("api/v{version:apiVersion}")]
     [ApiVersion("2.0")]
-    public class ProductController2 : ControllerBase
+    public class ProductController : ControllerBase
     {
         private readonly IProductService _productService;
-        public ProductController2(IProductService productService)
+        public ProductController(IProductService productService)
         {
             _productService = productService;
         }
@@ -23,7 +23,7 @@ namespace ProductManager.Controllers.V2
         [HttpGet]
         [MapToApiVersion("2.0")]
         [Route("products/{pageIndex}/{pageSize}")]
-        public async Task<IActionResult> GetPaginatedProducts2([FromRoute] int pageIndex, [FromRoute]int pageSize)
+        public async Task<IActionResult> GetPaginatedProducts([FromRoute] int pageIndex, [FromRoute]int pageSize)
         {
             try
             {
