@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
 using ProductManager.Data;
 using ProductManager.Mapping;
 using ProductManager.Repositories;
 using ProductManager.Services;
+using ProductManager.Swagger.Config;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +22,7 @@ builder.Services.AddTransient<IApplicationDbContext, ApplicationDbContext>();
 
 builder.Services.AddAutoMapper(typeof(ProductProfile));
 
+
 builder.Services.AddApiVersioning(opt =>
 {
     opt.DefaultApiVersion = new ApiVersion(1, 0);
@@ -31,6 +34,8 @@ builder.Services.AddApiVersioning(opt =>
             new HeaderApiVersionReader("x-api-version"),
             new MediaTypeApiVersionReader("x-api-version"));
 });
+
+builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
 
 builder.Services.AddVersionedApiExplorer(setup =>
 {
@@ -54,8 +59,18 @@ using (var scope = app.Services.CreateScope())
 
 if (app.Environment.IsDevelopment())
 {
+    var apiVersionDescriptionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        foreach (var description in apiVersionDescriptionProvider.ApiVersionDescriptions)
+        {
+            options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json",
+                description.GroupName.ToUpperInvariant());
+        }
+        options.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.List);
+    });
     app.UseDeveloperExceptionPage();
 }
 
