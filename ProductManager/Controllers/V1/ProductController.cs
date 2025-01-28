@@ -6,7 +6,7 @@ using ProductManager.Models.Dto;
 using ProductManager.Repositories;
 using ProductManager.Services;
 
-namespace ProductManager.Controllers
+namespace ProductManager.Controllers.V1
 {
     [Route("api")]
     [ApiController]
