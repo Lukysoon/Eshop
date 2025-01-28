@@ -11,7 +11,7 @@ public static class ProductSeed
             {
                 new Product
                 {
-                    Id = Guid.NewGuid(),
+                    Id = Guid.Parse("c5b09d46-23b5-41e9-a314-33f478aae1b6"),
                     Name = "Product 1",
                     ImgUri = "http://test.com/product1.jpg",
                     Price = 19.99m,

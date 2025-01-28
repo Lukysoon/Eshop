@@ -179,12 +179,12 @@
 	"variable": [
 		{
 			"key": "base_url",
-			"value": "http://localhost:5000",
+			"value": "http://localhost:5116",
 			"type": "string"
 		},
 		{
 			"key": "product_id",
-			"value": "",
+			"value": "c5b09d46-23b5-41e9-a314-33f478aae1b6",
 			"type": "string"
 		},
 		{
